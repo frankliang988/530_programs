@@ -15,7 +15,7 @@ int main(int argc,char*argv[]){
     }
     else{
         int recBuffer;
-        MPI_Recv(&number, 1, MPI_INT, coreId+1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(&recBuffer, 1, MPI_INT, coreId+1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         printf("Hello from %d of total %d cores \n", coreId, totalCore);
         if(coreId>0){
            MPI_Send(&message, 1, MPI_INT, coreId-1, 0, MPI_COMM_WORLD); 

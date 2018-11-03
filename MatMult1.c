@@ -102,16 +102,17 @@ int main(int argc, char **argv)
                 for(i = position * blockSize; i< position * blockSize + blockSize; i++){
                         for(j = 0; j<blockSize; j++){
                             finalResultPerCore[j][i] = multiResult[j][i - position * blockSize];
+                            multiResult[j][i - position * blockSize] = 0;
                         }
                 }
             
                 //rotation starts, core 2 sends to core 1
-                // if(counter != 0){
-                //     MPI_Send(&tempB,blockSize*colSize,MPI_INT,counter-1,2,MPI_COMM_WORLD);
-                // } else{
-                //     MPI_Send(&tempB,blockSize*colSize,MPI_INT,totalCore-1,2,MPI_COMM_WORLD);
-                // }
-                // MPI_Recv(&tempB, blockSize*colSize, MPI_INT, rot, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                if(counter != 0){
+                     MPI_Send(&tempB,blockSize*colSize,MPI_INT,counter-1,2,MPI_COMM_WORLD);
+                 } else{
+                     MPI_Send(&tempB,blockSize*colSize,MPI_INT,totalCore-1,2,MPI_COMM_WORLD);
+                 }
+                 MPI_Recv(&tempB, blockSize*colSize, MPI_INT, rot, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                   
           }
       }

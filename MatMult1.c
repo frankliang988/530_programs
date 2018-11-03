@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stddef.h>
-
+#define N 16*24
 void print_results(char *prompt, int a[][], int row, int col, int id);
 
 int main(int argc, char **argv)
@@ -16,7 +16,7 @@ int main(int argc, char **argv)
   blockSize = 16;
   int tempA[colSize][blockSize]; //holds row of A
   int tempB[blockSize][colSize]; //holds cols of B
-  int multiResult = [blockSize][blockSize]; //holds multiplication result 
+  int multiResult[blockSize][blockSize]; //holds multiplication result 
   int finalResultPerCore[colSize][blockSize]; //stores the final result done by each core.
   if(coreId == 0){
       int A[colSize][colSize];
@@ -27,9 +27,8 @@ int main(int argc, char **argv)
               B[i][j] == 2;
           }
       }
-  }
-  //sending the matrices from core 0 to the rest
-  for(counter =1; counter<totalCore; counter++ ){
+
+      for(counter =1; counter<totalCore; counter++ ){
       if(coreId == 0){
           dum = counter*blockSize; //16
           //dividing matrix A into parcel
@@ -40,20 +39,14 @@ int main(int argc, char **argv)
           }
           //dividing matrix B into parcel
           for(i = dum; i<dum + blockSize; i++){  //16 ~ 31
+         
             for(j = 0; j<colSize; j++){
                 tempB[j][i-dum] = B[j][i];
             }
           }
-          MPI_Send(&tempA,blockSize*colSize,MPI_Int,counter,0,MPI_COMM_WORLD)
-          MPI_Send(&tempB,blockSize*colSize,MPI_Int,counter,1,MPI_COMM_WORLD)
-      }
-      if(coreId == counter){
-          MPI_Recv(&tempA, blockSize*colSize, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      }
-      if(coreId == counter){
-          MPI_Recv(&tempB, blockSize*colSize, MPI_INT, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      }
-      if(counter == totalCore-1){
+          MPI_Send(&tempA,blockSize*colSize,MPI_INT,counter,0,MPI_COMM_WORLD);
+          MPI_Send(&tempB,blockSize*colSize,MPI_INT,counter,1,MPI_COMM_WORLD);
+          if(counter == totalCore-1){
           if(coreId == 0){
               for(i=0; i<blockSize; i++){
                   for(j = 0; j<colSize; j++){
@@ -63,14 +56,23 @@ int main(int argc, char **argv)
               }
           }
       }
+      }
+      }
+  }
+  //sending the matrices from core 0 to the rest
+  for(counter =1; counter<totalCore; counter++ ){
+      if(coreId == counter){
+          MPI_Recv(&tempA, blockSize*colSize, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+          MPI_Recv(&tempB, blockSize*colSize, MPI_INT, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      }
   }
     print_results("A temp = ", tempA, blockSize, colSize, counter);
-    print_results("B temp = ", tempB, colSize, blockSize, counter);
+    //print_results("B temp = ", tempB, colSize, blockSize, counter);
     MPI_Finalize();
 
 }
 
-void print_results(char *prompt, int a[][], int row, int col, int id)
+void print_results(char *prompt, int a[][N], int row, int col, int id)
 {
     int i, j;
     printf ("\n\n On core: %d, %s\n",id, prompt);

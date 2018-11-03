@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #define N 16*24
-void print_results(char *prompt, int a[][], int row, int col, int id);
+void print_results(char *prompt, int a[][N], int row, int col, int id);
 
 int main(int argc, char **argv)
 {
@@ -14,10 +14,10 @@ int main(int argc, char **argv)
   MPI_Comm_size(MPI_COMM_WORLD, &totalCore);
   colSize = 16*24;
   blockSize = 16;
-  int tempA[blockSize][colSize] = {0}; //holds row of A
-  int tempB[colSize][blockSize] = {0}; //holds cols of B
-  int multiResult[blockSize][blockSize] = {0}; //holds multiplication result 
-  int finalResultPerCore[colSize][blockSize] = {0}; //stores the final result done by each core.
+  int tempA[blockSize][colSize]; //holds row of A
+  int tempB[colSize][blockSize]; //holds cols of B
+  int multiResult[blockSize][blockSize]; //holds multiplication result 
+  int finalResultPerCore[colSize][blockSize]; //stores the final result done by each core.
 
   //matrix scattering
   if(coreId == 0){  
@@ -86,7 +86,7 @@ int main(int argc, char **argv)
           if(coreId == counter){
               //put matrix into final result matrix in each core in correct position
               int position = (rotation + counter) % totalCore;
-              int rot = (counter+1) % totalCore
+              int rot = (counter+1) % totalCore;
                 for(i = position * blockSize; i< position * blockSize + blockSize; i++){
                         for(j = 0; j<blockSize; j++){
                             finalResultPerCore[i][j] = multiResult[i - position * blockSize][j];
@@ -94,12 +94,12 @@ int main(int argc, char **argv)
                 }
             
                 //rotation starts, core 2 sends to core 1
-                if(counter != 0){
-                    MPI_Send(&tempB,blockSize*colSize,MPI_INT,counter-1,2,MPI_COMM_WORLD);
-                } else{
-                    MPI_Send(&tempB,blockSize*colSize,MPI_INT,totalCore-1,2,MPI_COMM_WORLD);
-                }
-                MPI_Recv(&tempB, blockSize*colSize, MPI_INT, rot, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                // if(counter != 0){
+                //     MPI_Send(&tempB,blockSize*colSize,MPI_INT,counter-1,2,MPI_COMM_WORLD);
+                // } else{
+                //     MPI_Send(&tempB,blockSize*colSize,MPI_INT,totalCore-1,2,MPI_COMM_WORLD);
+                // }
+                // MPI_Recv(&tempB, blockSize*colSize, MPI_INT, rot, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                   
           }
       }

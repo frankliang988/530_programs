@@ -17,16 +17,28 @@ int main(int argc, char **argv)
   int tempA[blockSize][colSize]; //holds row of A
   int tempB[colSize][blockSize]; //holds cols of B
   int multiResult[blockSize][blockSize]; //holds multiplication result 
-  int finalResultPerCore[colSize][blockSize]; //stores the final result done by each core.
+  int finalResultPerCore[blockSize][colSize]; //stores the final result done by each core.
+  for(i = 0; i <blockSize; i++){
+      for(j = 0; j<colSize; j++){
+          tempA[i][j] = 0;
+          tempB[j][i] = 0;
+          finalResultPerCore[i][j] = 0;
+      }
+  }
 
+  for(i = 0; i <blockSize; i++){
+      for(j = 0; j<blockSize; j++){
+          multiResult[i][j]=0;
+      }
+  }
   //matrix scattering
   if(coreId == 0){  
       int A[colSize][colSize];
       int B[colSize][colSize];
       for(i = 0; i< colSize; i++){
           for(j=0; j<colSize; j++){
-              A[i][j] == 1;
-              B[i][j] == 2;
+              A[i][j] = 1;
+              B[i][j] = 2;
           }
       }
 
@@ -69,7 +81,7 @@ int main(int argc, char **argv)
           MPI_Recv(&tempA, blockSize*colSize, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
           MPI_Recv(&tempB, blockSize*colSize, MPI_INT, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
       }
-      print_results("A temp = ", tempA, blockSize, colSize, counter);
+      //print_results("A temp = ", tempA, blockSize, colSize, counter);
   }
  
   for(rotation = 0; rotation < totalCore; rotation++){
@@ -89,7 +101,7 @@ int main(int argc, char **argv)
               int rot = (counter+1) % totalCore;
                 for(i = position * blockSize; i< position * blockSize + blockSize; i++){
                         for(j = 0; j<blockSize; j++){
-                            finalResultPerCore[i][j] = multiResult[i - position * blockSize][j];
+                            finalResultPerCore[j][i] = multiResult[j][i - position * blockSize];
                         }
                 }
             

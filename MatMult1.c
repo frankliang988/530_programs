@@ -127,19 +127,26 @@ int main(int argc, char **argv)
       print_results("final result = ", finalResultPerCore, blockSize, colSize, counter);
   }*/
 
-   MPI_Gather(finalResultPerCore, colSize*blockSize, MPI_Int, C,colSize*blockSize,MPI_Int, 0, MPI_COMM_WORLD );
+   //gather all sections on to core 0 and form matrix C
+   MPI_Gather(finalResultPerCore, colSize*blockSize, MPI_INT, C,colSize*blockSize,MPI_INT, 0, MPI_COMM_WORLD );
+  
+   //output final result to a text file.
    if(coreId == 0){
        FILE *file;
-       chat output[] = "out.txt";
+       char output[] = "out.txt";
        file = fopen(output, "w");
 
        for(i=0; i<colSize; i++){
            for(j = 0; j<colSize; j++){
-               fprintf(fp," %d",C[i][j]);
+               fprintf(file," %d",C[i][j]);
+               printf(" %d", C[i][j]);
            }
-           fprintf(fp,"\n");
+           fprintf(file,"\n");
+           printf ("\n");
        }
-       fclose(fp);
+       fclose(file);
+       //also print to console.
+       print_results("C = ", C, colSize, colSize, 0);
    }
  
     //print_results("B temp = ", tempB, colSize, blockSize, counter);

@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <time.h>
 #define N 16*24 //define column size or row size for a square matrix
-void print_results(char *prompt, double a[][N], int row, int col, int id);
+void FileOut(char *prompt, float a[][N], int row, int col, int id);
 
 int main(int argc, char **argv)
 {
@@ -16,20 +16,20 @@ int main(int argc, char **argv)
   MPI_Comm_size(MPI_COMM_WORLD, &totalCore);
   colSize = N;
   blockSize = colSize/totalCore; //how many rows and column to assign to each processor
-  double tempA[blockSize][colSize]; //holds rows of A
-  double tempB[colSize][blockSize]; //holds cols of B
-  double multiResult[blockSize][blockSize]; //holds multiplication result 
-  double finalResultPerCore[blockSize][colSize]; //stores the final result done by each core on each core.
-  double C[colSize][colSize];
+  float tempA[blockSize][colSize]; //holds rows of A
+  float tempB[colSize][blockSize]; //holds cols of B
+  float multiResult[blockSize][blockSize]; //holds multiplication result 
+  float finalResultPerCore[blockSize][colSize]; //stores the final result done by each core on each core.
+  float C[colSize][colSize];
 
   MPI_Barrier(MPI_COMM_WORLD);
   exeTime -= MPI_Wtime();
   //initialization
   for(i = 0; i <blockSize; i++){
       for(j = 0; j<colSize; j++){
-          tempA[i][j] = 0;
-          tempB[j][i] = 0;
-          finalResultPerCore[i][j] = 0;
+          tempA[i][j] = 0.0;
+          tempB[j][i] = 0.0;
+          finalResultPerCore[i][j] = 0.0;
       }
   }
 
@@ -41,13 +41,13 @@ int main(int argc, char **argv)
 
   //matrix scattering
   if(coreId == 0){   //define matrices A, B on core 0
-      double A[colSize][colSize];
-      double B[colSize][colSize];
+      float A[colSize][colSize];
+      float B[colSize][colSize];
       srand ( time ( NULL));
       for(i = 0; i< colSize; i++){
           for(j=0; j<colSize; j++){
-              A[i][j] = (double)rand()/RAND_MAX*2.0-1.0;
-              B[i][j] = (double)rand()/RAND_MAX*2.0-1.0;
+              A[i][j] = (float)rand()/RAND_MAX*2.0-1.0;
+              B[i][j] = (float)rand()/RAND_MAX*2.0-1.0;
               C[i][j] = 0.0;
           }
       }
@@ -70,8 +70,8 @@ int main(int argc, char **argv)
                 }
 
                 //send both parts to all other cores
-                MPI_Send(&tempA,blockSize*colSize,MPI_DOUBLE,counter,0,MPI_COMM_WORLD);
-                MPI_Send(&tempB,blockSize*colSize,MPI_DOUBLE,counter,1,MPI_COMM_WORLD);
+                MPI_Send(&tempA,blockSize*colSize,MPI_FLOAT,counter,0,MPI_COMM_WORLD);
+                MPI_Send(&tempB,blockSize*colSize,MPI_FLOAT,counter,1,MPI_COMM_WORLD);
                 if(counter == totalCore-1){ //at last, fill the parcel in A
                     if(coreId == 0){
                         for(i=0; i<blockSize; i++){
@@ -88,8 +88,8 @@ int main(int argc, char **argv)
   //getting the matrices from core 0 by the rest
   for(counter =1; counter<totalCore; counter++ ){
       if(coreId == counter){
-          MPI_Recv(&tempA, blockSize*colSize, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-          MPI_Recv(&tempB, blockSize*colSize, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+          MPI_Recv(&tempA, blockSize*colSize, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+          MPI_Recv(&tempB, blockSize*colSize, MPI_FLOAT, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
       }
       //print_results("A temp = ", tempA, blockSize, colSize, counter);
   }
@@ -118,11 +118,11 @@ int main(int argc, char **argv)
             
                 //rotation starts, core 2 sends to core 1
                 if(counter != 0){
-                     MPI_Send(&tempB,blockSize*colSize,MPI_DOUBLE,counter-1,2,MPI_COMM_WORLD);
+                     MPI_Send(&tempB,blockSize*colSize,MPI_FLOAT,counter-1,2,MPI_COMM_WORLD);
                  } else{
-                     MPI_Send(&tempB,blockSize*colSize,MPI_DOUBLE,totalCore-1,2,MPI_COMM_WORLD);
+                     MPI_Send(&tempB,blockSize*colSize,MPI_FLOAT,totalCore-1,2,MPI_COMM_WORLD);
                  }
-                 MPI_Recv(&tempB, blockSize*colSize, MPI_DOUBLE, rot, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                 MPI_Recv(&tempB, blockSize*colSize, MPI_FLOAT, rot, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                   
           }
       }
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
   }*/
 
    //gather all sections on to core 0 and form matrix C
-   MPI_Gather(finalResultPerCore, colSize*blockSize, MPI_DOUBLE, C,colSize*blockSize,MPI_DOUBLE, 0, MPI_COMM_WORLD );
+   MPI_Gather(finalResultPerCore, colSize*blockSize, MPI_FLOAT, C,colSize*blockSize,MPI_FLOAT, 0, MPI_COMM_WORLD );
   
    //output final result to a text file.
    if(coreId == 0){
@@ -152,20 +152,20 @@ int main(int argc, char **argv)
 
 }
 
-void FileOut(char *prompt, double a[][N], int row, int col, int id)
+void FileOut(char *prompt, float a[][N], int row, int col, int id)
 {
-    FILE *file;
-    char output[] = "out.txt";
-    file = fopen(output, "w");
+    //FILE *file;
+    //char output[] = "out.txt";
+    //file = fopen(output, "w");
     int i, j;
-    printf ("\n\n On core: %d, %s\n",id, prompt);
+    printf ("\n\n On core: %f, %s\n",id, prompt);
     for (i = 0; i < row; i++) {
             for (j = 0; j < col; j++) {
-                    printf(" %d", a[i][j]);
-                    fprintf(file," %d",a[i][j]);
+                    printf(" %f", a[i][j]);
+                    //fprintf(file," %d",a[i][j]);
             }
-            printf ("\n");
-            fprintf(file,"\n");
+            printf ("\n\n");
+            //fprintf(file,"\n");
     }
     printf ("\n\n");
 }

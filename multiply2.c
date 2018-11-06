@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     MPI_Finalize();
 }
 
-void FileOut(char *prompt, double a[][N], int row, int col, int id)
+void FileOut(char *prompt, float a[][N], int row, int col, int id)
 {
     //FILE *file;
    // char output[] = "out.txt";

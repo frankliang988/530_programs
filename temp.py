@@ -108,12 +108,12 @@ def strass(A, B, n, total, communicator):
                     p7 = strass(subtract(a12, a22), add(b21, b22), newSize, total,communicator)
                     communicator.send(p7, dest=0, tag = 1)
         if id == 0:
-            p2 = communicator.recv(source = 1, tag = 11)
-            p3 = communicator.recv(source = 2, tag = 11)
-            p4 = communicator.recv(source = 3, tag = 11)
-            p5 = communicator.recv(source = 4, tag = 11)
-            p6 = communicator.recv(source = 5, tag = 11)
-            p7 = communicator.recv(source = 6, tag = 11)
+            p2 = communicator.recv(source = 1, tag = 1)
+            p3 = communicator.recv(source = 2, tag = 1)
+            p4 = communicator.recv(source = 3, tag = 1)
+            p5 = communicator.recv(source = 4, tag = 1)
+            p6 = communicator.recv(source = 5, tag = 1)
+            p7 = communicator.recv(source = 6, tag = 1)
             
             c11 = add(subtract(add(p1, p4),p5), p7)
             c12 = add(p3, p5)
@@ -128,6 +128,8 @@ def strass(A, B, n, total, communicator):
                     result1[i][j + newSize] = c12[i][j]     # top right
                     result1[i + newSize][j] = c21[i][j]    # bottom left
                     result1[i + newSize][j + newSize] = c22[i][j]  # bottom right
+            #for i in range(1,size):
+                #communicator.send(result1, dest=i, tag = 2)
         
         result = communicator.bcast(result1, root = 0)
         print('Matrix C = AB')

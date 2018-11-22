@@ -78,7 +78,7 @@ def strass(A, B, n, total, communicator):
     
     if n == total:
         id = communicator.Get_rank()
-        size = communicator.Get_Size()
+        size = communicator.Get_size()
         for i in range(0,size):
             if i == 0:
                 if id == i:
@@ -129,10 +129,10 @@ def strass(A, B, n, total, communicator):
                     result1[i + newSize][j] = c21[i][j]    # bottom left
                     result1[i + newSize][j + newSize] = c22[i][j]  # bottom right
         
-    result = communicator.bcast(result1, root = 0)
-    print('Matrix C = AB')
-    printMatrix(result, n)
-    return result;
+        result = communicator.bcast(result1, root = 0)
+        print('Matrix C = AB')
+        printMatrix(result, n)
+        return result;
         
         
         

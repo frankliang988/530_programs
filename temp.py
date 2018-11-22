@@ -129,10 +129,10 @@ def strass(A, B, n, total, communicator):
                     result1[i + newSize][j] = c21[i][j]    # bottom left
                     result1[i + newSize][j + newSize] = c22[i][j]  # bottom right
         
-        result = communicator.bcast(result1, root = 0)
-        print('Matrix C = AB')
-        printMatrix(result, n)
-        return result;
+    result = communicator.bcast(result1, root = 0)
+    print('Matrix C = AB')
+    printMatrix(result, n)
+    return result;
         
         
         

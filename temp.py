@@ -89,6 +89,7 @@ def strass(A, B, n, total, communicator):
         id = communicator.Get_rank()
         size = communicator.Get_size()//7
         group = communicator.Get_group()
+        result1 = [[0 for j in range(0, n)] for i in range(0, n)]
         newgroup1 = group.Incl(list(range(0*size,1*size)))
         newgroup2 = group.Incl(list(range(1*size,2*size)))
         newgroup3 = group.Incl(list(range(2*size,3*size)))
@@ -98,11 +99,11 @@ def strass(A, B, n, total, communicator):
         newgroup7 = group.Incl(list(range(6*size,7*size)))
         newcomm1 = comm.Create(newgroup1)
         newcomm2 = comm.Create(newgroup2)
-        newcomm3 = comm.Create(newgroup1)
-        newcomm4 = comm.Create(newgroup2)
-        newcomm5 = comm.Create(newgroup1)
-        newcomm6 = comm.Create(newgroup2)
-        newcomm7 = comm.Create(newgroup1)
+        newcomm3 = comm.Create(newgroup3)
+        newcomm4 = comm.Create(newgroup4)
+        newcomm5 = comm.Create(newgroup5)
+        newcomm6 = comm.Create(newgroup6)
+        newcomm7 = comm.Create(newgroup7)
         
         for i in range(0,7):
             if i == 0:
@@ -151,7 +152,6 @@ def strass(A, B, n, total, communicator):
             c21 = add(p2, p4)
             c22 = add(add(subtract(p1, p2), p3), p6)
             
-            result1 = [[0 for j in range(0, n)] for i in range(0, n)]
     
             for i in range(0, newSize):
                 for j in range(0, newSize):

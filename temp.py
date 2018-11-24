@@ -42,7 +42,7 @@ def multiply(A, B, comm):
     id = comm.Get_rank()
     size = comm.Get_size()
     n = len(A)
-    blockSize = n//2
+    blockSize = n
     C = [[0 for j in range(0, n)] for i in range(0, blockSize)]
     result1 = [[0 for j in range(0, n)] for i in range(0, n)]
     for i in range(0,size):
@@ -55,18 +55,24 @@ def multiply(A, B, comm):
                 comm.send(C, dest=0, tag = 12)
     
     if id ==0:
-        for i in range(1,size):
-            d = comm.recv(source = i, tag = 12)
-            for j in range(0, blockSize):
-                for k in range(0, n):
+        print('in here A')
+        printMatrix(A,n)
+        print('in here B')
+        printMatrix(B,n)
+        print('in here C')
+        printMatrix(C,n)
+        #for i in range(1,size):
+            #d = comm.recv(source = i, tag = 12)
+            #for j in range(0, blockSize):
+                #for k in range(0, n):
                     result1[j+i*blockSize][k] = d[j][k] 
-        for j in range(0, blockSize):
-            for k in range(0, n):
-                result1[j][k] = C[j][k] 
+        #for j in range(0, blockSize):
+            #or k in range(0, n):
+                #result1[j][k] = C[j][k] 
             
-    result = comm.bcast(result1, root = 0)
+    #result = comm.bcast(result1, root = 0)
     
-    return result
+    return C
 
 def strass(A, B, n, total, communicator):
     #determines the number of recursion, //2 for 1st lvl, //4 for 2nd, //8 for 3rd
@@ -91,6 +97,8 @@ def strass(A, B, n, total, communicator):
             a12[i][j] = A[i][j + newSize]    # top right
             a21[i][j] = A[i + newSize][j]    # bottom left
             a22[i][j] = A[i + newSize][j + newSize] # bottom right
+            
+            dum[i][j] = A[i + newSize][j + newSize]
 
             b11[i][j] = B[i][j]            # top left
             b12[i][j] = B[i][j + newSize]    # top right
@@ -116,17 +124,20 @@ def strass(A, B, n, total, communicator):
         newcomm5 = comm.Create(newgroup5)
         newcomm6 = comm.Create(newgroup6)
         newcomm7 = comm.Create(newgroup7)
-        p1 = result1
-        p2 = result1
-        p3 = result1
-        p4 = result1
-        p5 = result1
-        p6 = result1
-        p7 = result1
+        p1 = dum
+        p2 = dum
+        p3 = dum
+        p4 = dum
+        p5 = dum
+        p6 = dum
+        p7 = dum
         for i in range(0,7):
             if i == 0:
                 if i*size <= id < (i+1)*size:
                     p1 = strass(add(a11, a22), add(b11, b22), newSize, total,newcomm1)
+                    if id == i*size:
+                        print('p1')
+                        printMatrix(p1,newSize)
                     newgroup1.Free()
                     if newcomm1: newcomm1.Free()
             elif i == 1:
@@ -134,6 +145,9 @@ def strass(A, B, n, total, communicator):
                     p2 = strass(add(a21, a22), b11, newSize, total,newcomm2)
                     #if id == i:
                         #communicator.send(p2, dest=0, tag = 1)
+                    if id == i*size:
+                        print('p2')
+                        printMatrix(p2,newSize)
                     newgroup2.Free()
                     if newcomm2: newcomm2.Free()
             elif i == 2:
@@ -141,6 +155,9 @@ def strass(A, B, n, total, communicator):
                     p3 = strass(a11, subtract(b12, b22), newSize, total,newcomm3)
                     #if id == i:
                         #communicator.send(p3, dest=0, tag = 1)
+                    if id == i*size:
+                        print('p3')
+                        printMatrix(p3,newSize)
                     newgroup3.Free()
                     if newcomm3: newcomm3.Free()
             elif i == 3:
@@ -148,6 +165,9 @@ def strass(A, B, n, total, communicator):
                     p4 = strass(a22, subtract(b21, b11), newSize, total,newcomm4)
                     #if id == i:
                         #communicator.send(p4, dest=0, tag = 1)
+                    if id == i*size:
+                        print('p4')
+                        printMatrix(p4,newSize)
                     newgroup4.Free()
                     if newcomm4: newcomm4.Free()
             elif i == 4:
@@ -155,6 +175,9 @@ def strass(A, B, n, total, communicator):
                     p5 = strass(add(a11, a12),b22, newSize, total,newcomm5)
                     #if id == i:
                         #communicator.send(p5, dest=0, tag = 1)
+                    if id == i*size:
+                        print('p5')
+                        printMatrix(p5,newSize)
                     newgroup5.Free()
                     if newcomm5: newcomm5.Free()
             elif i == 5:
@@ -162,6 +185,9 @@ def strass(A, B, n, total, communicator):
                     p6 = strass(subtract(a21, a11), add(b11, b12), newSize, total,newcomm6)
                     #if id == i:
                         #communicator.send(p6, dest=0, tag = 1)
+                    if id == i*size:
+                        print('p6')
+                        printMatrix(p6,newSize)
                     newgroup6.Free()
                     if newcomm6: newcomm6.Free()
             elif i == 6:
@@ -169,6 +195,9 @@ def strass(A, B, n, total, communicator):
                     p7 = strass(subtract(a12, a22), add(b21, b22), newSize, total,newcomm7)
                     #if id == i:
                         #communicator.send(p7, dest=0, tag = 1)
+                    if id == i*size:
+                        print('p7')
+                        printMatrix(p7,newSize)
                     newgroup7.Free()
                     if newcomm7: newcomm7.Free()
         group.Free()
@@ -202,9 +231,17 @@ def strass(A, B, n, total, communicator):
             p7 = communicator.recv(source = 6, tag = 1)
             
             c11 = add(subtract(add(p1, p4),p5), p7)
+            print('c11 = 1+4-5+7')
+            printMatrix(c11,newSize)
             c12 = add(p3, p5)
+            print('c12 = 3+5')
+            printMatrix(c12,newSize)
             c21 = add(p2, p4)
+            print('c21 = 2+5')
+            printMatrix(c21,newSize)
             c22 = add(add(subtract(p1, p2), p3), p6)
+            print('c22 = 1-2+3+6')
+            printMatrix(c22,newSize)
             
     
             for i in range(0, newSize):

@@ -19,17 +19,21 @@ size = comm.Get_size()//7
 
 for i in range(0,7):
     if i == 0:
-        if i*size <= id <= (i+1)*size-1:
+        if i*size <= rank <= (i+1)*size-1:
             group = comm.Get_group()
-            newgroup = group.Incl(range(i*size, (i+1)*size))
+            print('in here 1 with id ' + str(rank))
+            newgroup = group.Incl([0, 1, 2])
+            print('in here 2 with id ' + str(rank))
             newcomm = comm.Create(newgroup)
+            print('in here 3.5 with id ' + str(rank))
             printGroup(newcomm,i)
+            print('in here 3 with id ' + str(rank))
             group.Free(); newgroup.Free()
             if newcomm: newcomm.Free()
     if i == 1:
-        if i*size <= id <= (i+1)*size-1:
+        if i*size <= rank <= (i+1)*size-1:
             group = comm.Get_group()
-            newgroup = group.Incl(range(i*size, (i+1)*size))
+            newgroup = group.Incl([3, 4, 5])
             newcomm = comm.Create(newgroup)
             printGroup(newcomm,i)
             group.Free(); newgroup.Free()

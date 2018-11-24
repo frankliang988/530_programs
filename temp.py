@@ -42,19 +42,31 @@ def multiply(A, B, comm):
     id = comm.Get_rank()
     size = comm.Get_size()
     n = len(A)
-    blockSize = n
+    blockSize = n//2
     C = [[0 for j in range(0, n)] for i in range(0, blockSize)]
+    result1 = [[0 for j in range(0, n)] for i in range(0, n)]
     for i in range(0,size):
         if id == i:
             for i in range(0, blockSize):
                 for j in range(0, n):
                     for k in range(0, n):
                         C[i][j] = C[i][j] + A[i][k] * B[k][j]
+            if id != 0:
+                comm.send(C, dest=0, tag = 12)
     
-    #result1 = [[0 for j in range(0, n)] for i in range(0, n)]
-    #result1 = comm.gather(C,root = 0)
-    #result = comm.bcast(result1, root = 0)
-    return A
+    if id ==0:
+        for i in range(1,size):
+            d = comm.recv(source = i, tag = 12)
+            for j in range(0, blockSize):
+                for k in range(0, n):
+                    result1[j+i*blockSize][k] = d[j][k] 
+        for j in range(0, blockSize):
+            for k in range(0, n):
+                result1[j][k] = C[j][k] 
+            
+    result = comm.bcast(result1, root = 0)
+    
+    return result
 
 def strass(A, B, n, total, communicator):
     #determines the number of recursion, //2 for 1st lvl, //4 for 2nd, //8 for 3rd
@@ -90,13 +102,13 @@ def strass(A, B, n, total, communicator):
         size = communicator.Get_size()//7
         group = communicator.Get_group()
         result1 = [[0 for j in range(0, n)] for i in range(0, n)]
-        newgroup1 = group.Incl(list(range(0*size,1*size)))
-        newgroup2 = group.Incl(list(range(1*size,2*size)))
-        newgroup3 = group.Incl(list(range(2*size,3*size)))
-        newgroup4 = group.Incl(list(range(3*size,4*size)))
-        newgroup5 = group.Incl(list(range(4*size,5*size)))
-        newgroup6 = group.Incl(list(range(5*size,6*size)))
-        newgroup7 = group.Incl(list(range(6*size,7*size)))
+        newgroup1 = group.Incl(range(0*size,1*size))
+        newgroup2 = group.Incl(range(1*size,2*size))
+        newgroup3 = group.Incl(range(2*size,3*size))
+        newgroup4 = group.Incl(range(3*size,4*size))
+        newgroup5 = group.Incl(range(4*size,5*size))
+        newgroup6 = group.Incl(range(5*size,6*size))
+        newgroup7 = group.Incl(range(6*size,7*size))
         newcomm1 = comm.Create(newgroup1)
         newcomm2 = comm.Create(newgroup2)
         newcomm3 = comm.Create(newgroup3)
@@ -164,30 +176,30 @@ def strass(A, B, n, total, communicator):
             if i == 1:
                 if id == i:
                     communicator.send(p2, dest=0, tag = 1)
-            if i == 1:
+            if i == 2:
                 if id == i:
                     communicator.send(p3, dest=0, tag = 1)
-            if i == 1:
+            if i == 3:
                 if id == i:
                     communicator.send(p4, dest=0, tag = 1)
-            if i == 1:
+            if i == 4:
                 if id == i:
                     communicator.send(p5, dest=0, tag = 1)
-            if i == 1:
+            if i == 5:
                 if id == i:
                     communicator.send(p6, dest=0, tag = 1)
-            if i == 1:
+            if i == 6:
                 if id == i:
                     communicator.send(p7, dest=0, tag = 1)
     
         if id == 0:
             #p1 = A
-            p2 = p1#communicator.recv(source = 1, tag = 1)
-            p3 = p1#communicator.recv(source = 2, tag = 1)
-            p4 = p1#communicator.recv(source = 3, tag = 1)
-            p5 = p1#communicator.recv(source = 4, tag = 1)
-            p6 = p1#communicator.recv(source = 5, tag = 1)
-            p7 = p1#communicator.recv(source = 6, tag = 1)
+            p2 = communicator.recv(source = 1, tag = 1)
+            p3 = communicator.recv(source = 2, tag = 1)
+            p4 = communicator.recv(source = 3, tag = 1)
+            p5 = communicator.recv(source = 4, tag = 1)
+            p6 = communicator.recv(source = 5, tag = 1)
+            p7 = communicator.recv(source = 6, tag = 1)
             
             c11 = add(subtract(add(p1, p4),p5), p7)
             c12 = add(p3, p5)

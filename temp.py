@@ -96,38 +96,46 @@ def strass(A, B, n, total, communicator):
         newgroup5 = group.Incl(list(range(4*size,5*size)))
         newgroup6 = group.Incl(list(range(5*size,6*size)))
         newgroup7 = group.Incl(list(range(6*size,7*size)))
+        newcomm1 = comm.Create(newgroup1)
+        newcomm2 = comm.Create(newgroup2)
+        newcomm3 = comm.Create(newgroup1)
+        newcomm4 = comm.Create(newgroup2)
+        newcomm5 = comm.Create(newgroup1)
+        newcomm6 = comm.Create(newgroup2)
+        newcomm7 = comm.Create(newgroup1)
+        
         for i in range(0,7):
             if i == 0:
                 if i*size <= id < (i+1)*size:
-                    p1 = strass(add(a11, a22), add(b11, b22), newSize, total,newgroup1)
+                    p1 = strass(add(a11, a22), add(b11, b22), newSize, total,newcomm1)
             elif i == 1:
                 if i*size <= id < (i+1)*size:
-                    p2 = strass(add(a21, a22), b11, newSize, total,newgroup2)
+                    p2 = strass(add(a21, a22), b11, newSize, total,newcomm2)
                     if id == i:
                         communicator.send(p2, dest=0, tag = 1)
             elif i == 2:
                 if i*size <= id < (i+1)*size:
-                    p3 = strass(a11, subtract(b12, b22), newSize, total,newgroup3)
+                    p3 = strass(a11, subtract(b12, b22), newSize, total,newcomm3)
                     if id == i:
                         communicator.send(p3, dest=0, tag = 1)
             elif i == 3:
                 if i*size <= id < (i+1)*size:
-                    p4 = strass(a22, subtract(b21, b11), newSize, total,newgroup4)
+                    p4 = strass(a22, subtract(b21, b11), newSize, total,newcomm4)
                     if id == i:
                         communicator.send(p4, dest=0, tag = 1)
             elif i == 4:
                 if i*size <= id < (i+1)*size:
-                    p5 = strass(add(a11, a12),b22, newSize, total,newgroup5)
+                    p5 = strass(add(a11, a12),b22, newSize, total,newcomm5)
                     if id == i:
                         communicator.send(p5, dest=0, tag = 1)
             elif i == 5:
                 if i*size <= id < (i+1)*size:
-                    p6 = strass(subtract(a21, a11), add(b11, b12), newSize, total,newgroup6)
+                    p6 = strass(subtract(a21, a11), add(b11, b12), newSize, total,newcomm6)
                     if id == i:
                         communicator.send(p6, dest=0, tag = 1)
             elif i == 6:
                 if i*size <= id < (i+1)*size:
-                    p7 = strass(subtract(a12, a22), add(b21, b22), newSize, total,newgroup7)
+                    p7 = strass(subtract(a12, a22), add(b21, b22), newSize, total,newcomm7)
                     if id == i:
                         communicator.send(p7, dest=0, tag = 1)
         if id == 0:

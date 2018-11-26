@@ -6,7 +6,7 @@
 #include <time.h>
 #define N 16*24
 
-void FileOut(char *prompt, float[][N], int row, int col, int id);
+void FileOut(char *prompt, float a[][N], int row, int col, int id);
 
 int main(int argc, char **argv)
 {

@@ -53,7 +53,7 @@ int main(int argc, char **argv)
               C[i][j] = 0.0;
           }
       }
-
+      
       for(counter = 1; counter<totalCore; counter++ ){
             if(coreId == 0){
                 dum = counter*blockSize; //16
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
                     }
                 }
 
-                //send both parts to all other cores
+                //send both parts to each other cores
                 MPI_Send(&tempA,blockSize*colSize,MPI_FLOAT,counter,0,MPI_COMM_WORLD);
                 MPI_Send(&tempB1,blockSize*colSize,MPI_FLOAT,counter,1,MPI_COMM_WORLD);
                 if(counter == totalCore-1){ //at last, fill the parcel in A

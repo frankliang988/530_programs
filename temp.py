@@ -202,7 +202,7 @@ def strass(A, B, n, total, communicator):
             elif i == 4:
                 if i*size <= id < (i+1)*size:
                     p5 = strass(add(a11, a12),b22, newSize, total,newcomm5)
-                    if id == i:
+                    if id == i*size:
                         communicator.send(p5, dest=0, tag = 1)
                     #if id == i*size:
                         #print('p5')
@@ -329,13 +329,19 @@ B = [[0 for j in range(0, n)] for i in range(0, n)]
 #fill testing matrices
 fillMat(A, B, n)
 
-print('Matrix A')
-printMatrix(A, n)
-print('Matrix B')
-printMatrix(B, n)
 #printMatrix(multiply(A,B), n)
 #call strassen
+comm.barrier()
+wt = MPI.Wtime()
 C = strass(A, B, n, n, comm)
-print('Matrix C = AB')
-printMatrix(C, n)
+wt = MPI.Wtime() - wt
+if rank == 0:
+    print('Matrix A')
+    printMatrix(A, n)
+    print('Matrix B')
+    printMatrix(B, n)
+    print('Matrix C = AB')
+    printMatrix(C, n)
+    print('Total execution time: ' + str(wt))
+    
 

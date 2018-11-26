@@ -45,29 +45,29 @@ def multiply(A, B, comm):
     blockSize = n//size
     C = [[0 for j in range(0, n)] for i in range(0, blockSize)]
     result1 = [[0 for j in range(0, n)] for i in range(0, n)]
-    for i in range(0,size):
-        if id == i:
+    for s in range(0,size):
+        if id == s:
             for i in range(0, blockSize):
                 for j in range(0, n):
                     for k in range(0, n):
-                        C[i][j] = C[i][j] + A[i][k] * B[k][j]
+                        C[i][j] = C[i][j] + A[i+s*blockSize][k] * B[k][j]
             if id != 0:
                 comm.send(C, dest=0, tag = 12)
     
     if id ==0:
-        print('in here A')
-        printMatrix(A,n)
-        print('in here B')
-        printMatrix(B,n)
-        print('in here C')
-        printMatrix(C,n)
+        #print('in here A')
+        #printMatrix(A,n)
+        #print('in here B')
+        #printMatrix(B,n)
+        #print('in here C')
+        #printMatrix(C,n)
         for i in range(1,size):
             d = comm.recv(source = i, tag = 12)
             for j in range(0, blockSize):
                 for k in range(0, n):
                     result1[j+i*blockSize][k] = d[j][k] 
         for j in range(0, blockSize):
-            for k in range(0, n):
+           for k in range(0, n):
                 result1[j][k] = C[j][k] 
             
     result = comm.bcast(result1, root = 0)
@@ -76,7 +76,7 @@ def multiply(A, B, comm):
 
 def strass(A, B, n, total, communicator):
     #determines the number of recursion, //2 for 1st lvl, //4 for 2nd, //8 for 3rd
-    if n == total//2:
+    if n == total//8:
         return multiply(A, B, communicator)
     
     #else.... proceed
@@ -84,8 +84,8 @@ def strass(A, B, n, total, communicator):
     a11 = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
     a12 = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
     a21 = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
-    a22 = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
     dum = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
+    a22 = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
 
     b11 = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
     b12 = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
@@ -99,13 +99,14 @@ def strass(A, B, n, total, communicator):
             a21[i][j] = A[i + newSize][j]    # bottom left
             a22[i][j] = A[i + newSize][j + newSize] # bottom right
             
+           # dum[i][j] = A[i + newSize][j + newSize]
 
             b11[i][j] = B[i][j]            # top left
             b12[i][j] = B[i][j + newSize]    # top right
             b21[i][j] = B[i + newSize][j]    # bottom left
             b22[i][j] = B[i + newSize][j + newSize] # bottom right
     
-    if n == total:
+    if n == total//4:
         id = communicator.Get_rank()
         size = communicator.Get_size()//7
         group = communicator.Get_group()
@@ -137,7 +138,7 @@ def strass(A, B, n, total, communicator):
                     p1 = strass(add(a11, a22), add(b11, b22), newSize, total,newcomm1)
                     if id == i*size:
                         print('p1')
-                        printMatrix(p1,newSize)
+                       # printMatrix(p1,newSize)
                     newgroup1.Free()
                     if newcomm1: newcomm1.Free()
             elif i == 1:
@@ -147,7 +148,7 @@ def strass(A, B, n, total, communicator):
                         #communicator.send(p2, dest=0, tag = 1)
                     if id == i*size:
                         print('p2')
-                        printMatrix(p2,newSize)
+                       # printMatrix(p2,newSize)
                     newgroup2.Free()
                     if newcomm2: newcomm2.Free()
             elif i == 2:
@@ -157,7 +158,7 @@ def strass(A, B, n, total, communicator):
                         #communicator.send(p3, dest=0, tag = 1)
                     if id == i*size:
                         print('p3')
-                        printMatrix(p3,newSize)
+                       # printMatrix(p3,newSize)
                     newgroup3.Free()
                     if newcomm3: newcomm3.Free()
             elif i == 3:
@@ -167,7 +168,7 @@ def strass(A, B, n, total, communicator):
                         #communicator.send(p4, dest=0, tag = 1)
                     if id == i*size:
                         print('p4')
-                        printMatrix(p4,newSize)
+                       # printMatrix(p4,newSize)
                     newgroup4.Free()
                     if newcomm4: newcomm4.Free()
             elif i == 4:
@@ -177,7 +178,7 @@ def strass(A, B, n, total, communicator):
                         #communicator.send(p5, dest=0, tag = 1)
                     if id == i*size:
                         print('p5')
-                        printMatrix(p5,newSize)
+                       # printMatrix(p5,newSize)
                     newgroup5.Free()
                     if newcomm5: newcomm5.Free()
             elif i == 5:
@@ -187,7 +188,7 @@ def strass(A, B, n, total, communicator):
                         #communicator.send(p6, dest=0, tag = 1)
                     if id == i*size:
                         print('p6')
-                        printMatrix(p6,newSize)
+                       # printMatrix(p6,newSize)
                     newgroup6.Free()
                     if newcomm6: newcomm6.Free()
             elif i == 6:
@@ -197,7 +198,7 @@ def strass(A, B, n, total, communicator):
                         #communicator.send(p7, dest=0, tag = 1)
                     if id == i*size:
                         print('p7')
-                        printMatrix(p7,newSize)
+                       # printMatrix(p7,newSize)
                     newgroup7.Free()
                     if newcomm7: newcomm7.Free()
         group.Free()
@@ -205,33 +206,21 @@ def strass(A, B, n, total, communicator):
             if i == 1:
                 if id == i*size:
                     communicator.send(p2, dest=0, tag = 1)
-                    print('before sending p2')
-                    printMatrix(p2,newSize)
             if i == 2:
                 if id == i*size:
                     communicator.send(p3, dest=0, tag = 1)
-                    print('before sending p3')
-                    printMatrix(p3,newSize)
             if i == 3:
                 if id == i*size:
                     communicator.send(p4, dest=0, tag = 1)
-                    print('before sending p4')
-                    printMatrix(p4,newSize)
             if i == 4:
                 if id == i*size:
                     communicator.send(p5, dest=0, tag = 1)
-                    print('before sending p5')
-                    printMatrix(p5,newSize)
             if i == 5:
                 if id == i*size:
                     communicator.send(p6, dest=0, tag = 1)
-                    print('before sending p6')
-                    printMatrix(p6,newSize)
             if i == 6:
                 if id == i*size:
                     communicator.send(p7, dest=0, tag = 1)
-                    print('before sending p7')
-                    printMatrix(p7,newSize)
     
         if id == 0:
             #p1 = A
@@ -243,17 +232,17 @@ def strass(A, B, n, total, communicator):
             p7 = communicator.recv(source = 6*size, tag = 1)
             
             c11 = add(subtract(add(p1, p4),p5), p7)
-            print('c11 = 1+4-5+7')
-            printMatrix(c11,newSize)
+           # print('c11 = 1+4-5+7')
+           # printMatrix(c11,newSize)
             c12 = add(p3, p5)
-            print('c12 = 3+5')
-            printMatrix(c12,newSize)
+           # print('c12 = 3+5')
+           # printMatrix(c12,newSize)
             c21 = add(p2, p4)
-            print('c21 = 2+5')
-            printMatrix(c21,newSize)
+           # print('c21 = 2+5')
+           # printMatrix(c21,newSize)
             c22 = add(add(subtract(p1, p2), p3), p6)
-            print('c22 = 1-2+3+6')
-            printMatrix(c22,newSize)
+           # print('c22 = 1-2+3+6')
+           # printMatrix(c22,newSize)
             
     
             for i in range(0, newSize):
@@ -262,8 +251,8 @@ def strass(A, B, n, total, communicator):
                     result1[i][j + newSize] = c12[i][j]     # top right
                     result1[i + newSize][j] = c21[i][j]    # bottom left
                     result1[i + newSize][j + newSize] = c22[i][j]  # bottom right
-            print('Matrix C = AB')
-            printMatrix(result1, n)
+            #for i in range(1,size):
+                #communicator.send(result1, dest=i, tag = 2)
         
         result = communicator.bcast(result1, root = 0)
         #print('Matrix C = AB')
@@ -301,7 +290,7 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()  
     
     
-n = 8
+n = 256
 A = [[0 for j in range(0, n)] for i in range(0, n)]
 B = [[0 for j in range(0, n)] for i in range(0, n)]
 fillMat(A, B, n)
@@ -311,6 +300,6 @@ print('Matrix B')
 printMatrix(B, n)
 #printMatrix(multiply(A,B), n)
 C = strass(A, B, n, n, comm)
-#print('Matrix C = AB')
-#printMatrix(C, n)
+print('Matrix C = AB')
+printMatrix(C, n)
 

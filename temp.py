@@ -102,7 +102,7 @@ def strass(A, B, n, total, communicator):
     a11 = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
     a12 = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
     a21 = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
-    dum = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
+    #dum = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
     a22 = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
 
     b11 = [[0 for j in range(0, newSize)] for i in range(0, newSize)]
@@ -322,7 +322,11 @@ rank = comm.Get_rank()
     
 #n = row size of matrices A,B, n >= #of cores / 7 * 8 for the program to work
 #with 3 levels of recusive call. i.e: for 14 cores, n has to be at least 16
-n = 256
+
+#size of the matrix, has to be at least 8*totalCore/7*s where s = 1,2.....
+#if n works for 112 cores, it will also work fore 56,28,7, 14....etc cores
+n = 256 
+ 
 A = [[0 for j in range(0, n)] for i in range(0, n)]
 B = [[0 for j in range(0, n)] for i in range(0, n)]
 
@@ -342,6 +346,6 @@ if rank == 0:
     printMatrix(B, n)
     print('Matrix C = AB')
     printMatrix(C, n)
-    print('Total execution time: ' + str(wt))
+    print('Total execution time: ' + str(wt) + 'sec')
     
 
